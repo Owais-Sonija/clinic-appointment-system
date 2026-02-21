@@ -1,8 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #2563eb;
+  --color-secondary: #facc15;
+  --color-dark: #0f172a;
+  --color-light: #f8fafc;
+}
 
 @layer base {
   body {
@@ -15,18 +20,23 @@
   .btn-primary {
     @apply bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium shadow-md shadow-blue-500/30;
   }
+
   .btn-secondary {
     @apply bg-secondary text-dark px-6 py-2.5 rounded-lg hover:bg-yellow-500 transition font-medium shadow-md shadow-yellow-500/30;
   }
+
   .btn-outline {
     @apply border-2 border-primary text-primary px-6 py-2.5 rounded-lg hover:bg-primary hover:text-white transition font-medium;
   }
+
   .card {
     @apply bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
   }
+
   .input-field {
     @apply w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent focus:bg-white outline-none transition text-gray-700;
   }
+
   .label-text {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
