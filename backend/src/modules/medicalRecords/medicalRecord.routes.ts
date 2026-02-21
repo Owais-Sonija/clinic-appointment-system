@@ -8,7 +8,8 @@ const router = express.Router();
 router.use(protect); // All EMR routes require authentication
 
 router.post('/', roleAuth('doctor', 'admin'), emrController.create);
-router.get('/patient/:patientId(.*)?', emrController.getPatientHistory);
+router.get('/patient', emrController.getPatientHistory);
+router.get('/patient/:patientId', emrController.getPatientHistory);
 router.get('/:id', emrController.getById);
 router.put('/:id', roleAuth('doctor', 'admin'), emrController.update);
 router.delete('/:id', roleAuth('admin'), emrController.deleteRecord);
