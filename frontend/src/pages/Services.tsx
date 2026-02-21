@@ -9,7 +9,7 @@ const Services = () => {
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                const res = await axiosInstance.get('/api/services');
+                const res = await axiosInstance.get('/api/clinic/services');
                 setServices(res.data?.data || []);
             } catch (error: any) {
                 console.error("Error fetching services", error);

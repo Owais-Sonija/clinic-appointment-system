@@ -33,9 +33,9 @@ const PatientDashboard = () => {
         try {
             setLoading(true);
             const [apptsRes, docsRes, servRes] = await Promise.all([
-                axiosInstance.get('/api/appointments/my'),
+                axiosInstance.get('/api/appointments'),
                 axiosInstance.get('/api/doctors'),
-                axiosInstance.get('/api/services')
+                axiosInstance.get('/api/clinic/services')
             ]);
             setAppointments(apptsRes.data?.data || []);
             setDoctors(docsRes.data?.data || []);

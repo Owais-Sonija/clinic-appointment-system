@@ -12,7 +12,7 @@ const Home = () => {
             try {
                 const [docRes, servRes] = await Promise.all([
                     axiosInstance.get('/api/doctors'),
-                    axiosInstance.get('/api/services')
+                    axiosInstance.get('/api/clinic/services')
                 ]);
                 setDoctors(docRes.data?.data?.slice(0, 3) || []); // Top 3 doctors
                 setServices(servRes.data?.data?.slice(0, 4) || []); // Top 4 services
