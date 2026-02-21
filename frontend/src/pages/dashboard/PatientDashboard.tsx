@@ -4,18 +4,26 @@ import axiosInstance from '../../api/axiosInstance';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaCalendarAlt, FaTimesCircle, FaCheckCircle, FaSpinner, FaUserMd } from 'react-icons/fa';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const PatientDashboard = () => {
     const { user } = useContext(AuthContext)!;
     const location = useLocation();
     const preselectDoctor = location.state?.preselectDoctor || '';
 
-    const [appointments, setAppointments] = useState<any[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState('upcoming');
+    const queryClient = useQueryClient();
 
-    const [doctors, setDoctors] = useState<any[]>([]);
-    const [services, setServices] = useState<any[]>([]);
+    const fetchAppointments = async () => (await axiosInstance.get('/api/appointments')).data?.data || [];
+    const fetchDoctors = async () => (await axiosInstance.get('/api/doctors')).data?.data || [];
+    const fetchServices = async () => (await axiosInstance.get('/api/clinic/services')).data?.data || [];
+
+    const { data: appointments = [], isLoading: apptsLoading } = useQuery({ queryKey: ['appointments'], queryFn: fetchAppointments });
+    const { data: doctors = [], isLoading: docsLoading } = useQuery({ queryKey: ['doctors'], queryFn: fetchDoctors });
+    const { data: services = [], isLoading: servsLoading } = useQuery({ queryKey: ['services'], queryFn: fetchServices });
+
+    const loading = apptsLoading || docsLoading || servsLoading;
+
     const [bookingData, setBookingData] = useState({
         doctorId: preselectDoctor,
         serviceId: '',
@@ -23,65 +31,66 @@ const PatientDashboard = () => {
         appointmentTime: '',
         notes: ''
     });
-    const [isBooking, setIsBooking] = useState<boolean>(false);
 
+    // Auto-navigate to book if no appointments
     useEffect(() => {
-        fetchDashboardData();
-    }, []);
-
-    const fetchDashboardData = async () => {
-        try {
-            setLoading(true);
-            const [apptsRes, docsRes, servRes] = await Promise.all([
-                axiosInstance.get('/api/appointments'),
-                axiosInstance.get('/api/doctors'),
-                axiosInstance.get('/api/clinic/services')
-            ]);
-            setAppointments(apptsRes.data?.data || []);
-            setDoctors(docsRes.data?.data || []);
-            setServices(servRes.data?.data || []);
-
-            if (apptsRes.data?.data?.length === 0 && preselectDoctor) {
-                setActiveTab('book');
-            }
-        } catch (error: any) {
-            console.error("Error fetching dashboard data", error);
-        } finally {
-            setLoading(false);
+        if (!loading && appointments.length === 0 && preselectDoctor) {
+            setActiveTab('book');
         }
-    };
+    }, [loading, appointments.length, preselectDoctor]);
 
     const handleBookingChange = (e: any) => setBookingData({ ...bookingData, [e.target.name]: e.target.value });
 
-    const handleBookingSubmit = async (e: any) => {
-        e.preventDefault();
-        setIsBooking(true);
-        try {
-            await axiosInstance.post('/api/appointments', bookingData);
+    const bookMutation = useMutation({
+        mutationFn: (newBooking: any) => axiosInstance.post('/api/appointments', newBooking),
+        onSuccess: () => {
             toast.success('Appointment booked successfully!');
             setBookingData({ doctorId: '', serviceId: '', appointmentDate: '', appointmentTime: '', notes: '' });
             setActiveTab('upcoming');
-            fetchDashboardData();
-        } catch (error: any) {
+            queryClient.invalidateQueries({ queryKey: ['appointments'] });
+        },
+        onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Failed to book appointment.');
-        } finally {
-            setIsBooking(false);
         }
+    });
+
+    const handleBookingSubmit = (e: any) => {
+        e.preventDefault();
+        // Transform form data if needed by schema (converting appointmentDate -> date, appointmentTime -> startTime)
+        // Auto-calculate endTime as startTime + 30 minutes
+        const [h, m] = bookingData.appointmentTime.split(':').map(Number);
+        const endDate = new Date(0, 0, 0, h, m + 30);
+        const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
+
+        const payload = {
+            doctorId: bookingData.doctorId,
+            serviceId: bookingData.serviceId,
+            date: bookingData.appointmentDate,
+            startTime: bookingData.appointmentTime,
+            endTime,
+            notes: bookingData.notes
+        };
+        bookMutation.mutate(payload);
     };
 
-    const handleCancelAppointment = async (id: string) => {
-        if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
-        try {
-            await axiosInstance.delete(`/api/appointments/${id}`);
+    const cancelMutation = useMutation({
+        mutationFn: (id: string) => axiosInstance.delete(`/api/appointments/${id}`),
+        onSuccess: () => {
             toast.success('Appointment cancelled successfully');
-            fetchDashboardData();
-        } catch (error: any) {
+            queryClient.invalidateQueries({ queryKey: ['appointments'] });
+        },
+        onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Failed to cancel appointment');
         }
+    });
+
+    const handleCancelAppointment = (id: string) => {
+        if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+        cancelMutation.mutate(id);
     };
 
-    const upcomingAppts = appointments.filter(a => a.status === 'pending' || a.status === 'confirmed');
-    const pastAppts = appointments.filter(a => a.status === 'completed' || a.status === 'cancelled');
+    const upcomingAppts = appointments.filter((a: any) => a.status === 'pending' || a.status === 'confirmed');
+    const pastAppts = appointments.filter((a: any) => a.status === 'completed' || a.status === 'cancelled');
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -149,7 +158,7 @@ const PatientDashboard = () => {
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        {upcomingAppts.map(appt => (
+                                        {upcomingAppts.map((appt: any) => (
                                             <div key={appt._id} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition bg-gray-50/50 relative overflow-hidden flex flex-col">
                                                 <div className="absolute top-0 right-0 p-4">{getStatusBadge(appt.status)}</div>
                                                 <div className="flex items-center gap-4 mb-4">
@@ -198,7 +207,7 @@ const PatientDashboard = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {pastAppts.map(appt => (
+                                                {pastAppts.map((appt: any) => (
                                                     <tr key={appt._id} className="hover:bg-gray-50 transition">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">Dr. {appt.doctorId?.userId?.name || 'Unknown'}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appt.serviceId?.name}</td>
@@ -224,7 +233,7 @@ const PatientDashboard = () => {
                                             <label className="label-text">Select Speciality / Service</label>
                                             <select name="serviceId" required value={bookingData.serviceId} onChange={handleBookingChange} className="input-field bg-white">
                                                 <option value="">-- Choose a Service --</option>
-                                                {services.map(s => <option key={s._id} value={s._id}>{s.name} (${s.price})</option>)}
+                                                {services.map((s: any) => <option key={s._id} value={s._id}>{s.name} (${s.price})</option>)}
                                             </select>
                                         </div>
 
@@ -232,7 +241,7 @@ const PatientDashboard = () => {
                                             <label className="label-text">Select Doctor</label>
                                             <select name="doctorId" required value={bookingData.doctorId} onChange={handleBookingChange} className="input-field bg-white">
                                                 <option value="">-- Choose a Doctor --</option>
-                                                {doctors.map(d => <option key={d._id} value={d._id}>Dr. {d.userId?.name} - {d.specialization}</option>)}
+                                                {doctors.map((d: any) => <option key={d._id} value={d._id}>Dr. {d.userId?.name} - {d.specialization}</option>)}
                                             </select>
                                         </div>
 
@@ -253,8 +262,8 @@ const PatientDashboard = () => {
                                         </div>
 
                                         <div className="pt-4">
-                                            <button type="submit" disabled={isBooking} className="btn-primary w-full py-3 hover:shadow-lg transition">
-                                                {isBooking ? 'Processing...' : 'Confirm Appointment'}
+                                            <button type="submit" disabled={bookMutation.isPending} className="btn-primary w-full py-3 hover:shadow-lg transition">
+                                                {bookMutation.isPending ? 'Processing...' : 'Confirm Appointment'}
                                             </button>
                                         </div>
                                     </div>

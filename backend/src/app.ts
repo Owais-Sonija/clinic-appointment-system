@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import logger from './utils/logger';
+import { setupSwagger } from './config/swagger';
 
 const app = express();
 
@@ -20,6 +22,15 @@ app.use(cookieParser());
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'], credentials: true }));
 app.use(morgan('dev'));
 
+// Winston request logging
+app.use((req: Request, _res: Response, next: NextFunction) => {
+    logger.info(`${req.method} ${req.originalUrl}`);
+    next();
+});
+
+// API Documentation
+setupSwagger(app);
+
 // Routes
 import authRoutes from './modules/auth/auth.routes';
 import doctorRoutes from './modules/doctors/doctor.routes';
@@ -32,7 +43,10 @@ import billingRoutes from './modules/billing/billing.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import notificationRoutes from './modules/notifications/notification.routes';
 
+import userRoutes from './modules/users/user.routes';
+
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/clinic', clinicRoutes);
