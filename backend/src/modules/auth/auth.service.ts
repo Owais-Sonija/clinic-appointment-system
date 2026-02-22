@@ -3,7 +3,7 @@ import ApiError from '../../utils/ApiError';
 
 class AuthService {
     async registerUser(userData: Partial<IUser>): Promise<IUser> {
-        const { name, email, password, role } = userData;
+        const { name, email, password, phone } = userData;
 
         const userExists = await User.findOne({ email });
 
@@ -15,7 +15,9 @@ class AuthService {
             name,
             email,
             password,
-            role: role || 'patient'
+            phone,
+            role: 'patient', // Force role = patient per Phase 5 specs
+            isActive: true
         });
 
         return user;
@@ -37,7 +39,7 @@ class AuthService {
             user.failedLoginAttempts += 1;
             if (user.failedLoginAttempts >= 5) {
                 user.isLocked = true;
-                user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // Lock for 15 mins
+                user.lockUntil = new Date(Date.now() + 60 * 60 * 1000); // Lock for 1 hour per Phase 5 specs
             }
             await user.save();
             throw new ApiError(401, 'Invalid email or password');

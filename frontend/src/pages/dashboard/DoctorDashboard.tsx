@@ -4,6 +4,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaUserMd, FaCalendarCheck, FaClock, FaCheck, FaTimes, FaCalendarAlt, FaList } from 'react-icons/fa';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -42,7 +44,7 @@ const DoctorDashboard = () => {
 
     const handleUpdateStatus = (id: string, status: string) => statusMutation.mutate({ id, status });
 
-    if (isLoading) return <div className="flex justify-center items-center py-32"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div></div>;
+    if (isLoading) return <LoadingSpinner />;
 
     const calendarEvents = appointments
         .filter((a: any) => a.status === 'Scheduled' || a.status === 'Completed')

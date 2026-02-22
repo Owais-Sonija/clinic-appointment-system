@@ -9,6 +9,7 @@ export interface FrontendUser {
     role: 'patient' | 'doctor' | 'admin' | 'receptionist' | 'nurse';
     profileImage?: string;
     isActive: boolean;
+    hasCompletedTour?: boolean;
 }
 
 interface AuthContextType {
@@ -17,6 +18,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<any>;
     register: (userData: any) => Promise<any>;
     logout: () => Promise<void>;
+    setUser: React.Dispatch<React.SetStateAction<FrontendUser | null>>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,11 +34,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                // If we have a session cookie, /profile will return the user
                 const res = await axiosInstance.get('/api/auth/profile');
                 if (res.data.success) {
                     setUser(res.data.data);
                 }
             } catch (error: any) {
+                // If 401, the interceptor might have already tried a refresh
+                // If it still fails, user is definitely logged out
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -68,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );

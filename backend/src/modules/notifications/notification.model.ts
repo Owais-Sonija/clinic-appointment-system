@@ -7,6 +7,8 @@ export interface INotification extends Document {
     isRead: boolean;
     relatedEntity?: mongoose.Types.ObjectId | any; // Dynamic link based on type
     isDeleted: boolean;
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -21,7 +23,9 @@ const notificationSchema: Schema<INotification> = new mongoose.Schema({
     message: { type: String, required: true },
     isRead: { type: Boolean, default: false },
     relatedEntity: { type: mongoose.Schema.Types.ObjectId }, // E.g. Appointment ID
-    isDeleted: { type: Boolean, default: false }
+    isDeleted: { type: Boolean, default: false },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, {
     timestamps: true
 });

@@ -5,11 +5,14 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password?: string;
-    role: 'patient' | 'doctor' | 'admin' | 'receptionist' | 'nurse';
+    role: 'patient' | 'doctor' | 'admin' | 'receptionist' | 'nurse' | 'pharmacist';
     phone?: string;
+    gender?: 'Male' | 'Female' | 'Other';
+    dateOfBirth?: Date;
     address?: string;
     isActive: boolean;
     lastLogin?: Date;
+    hasCompletedTour?: boolean;
     profileImage?: string;
     passwordResetToken?: string;
     passwordResetExpires?: Date;
@@ -17,6 +20,8 @@ export interface IUser extends Document {
     failedLoginAttempts: number;
     isLocked: boolean;
     lockUntil?: Date;
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     matchPassword(enteredPassword: string): Promise<boolean>;
     isDeleted: boolean;
     createdAt: Date;
@@ -29,10 +34,12 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     password: { type: String, required: true, select: false },
     role: {
         type: String,
-        enum: ['patient', 'doctor', 'admin', 'receptionist', 'nurse'],
+        enum: ['patient', 'doctor', 'admin', 'receptionist', 'nurse', 'pharmacist'],
         default: 'patient'
     },
     phone: { type: String },
+    gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+    dateOfBirth: { type: Date },
     address: { type: String },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date },
@@ -40,9 +47,12 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     passwordResetToken: { type: String },
     passwordResetExpires: { type: Date },
     refreshToken: { type: String },
+    hasCompletedTour: { type: Boolean, default: false },
     failedLoginAttempts: { type: Number, default: 0 },
     isLocked: { type: Boolean, default: false },
     lockUntil: { type: Date },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

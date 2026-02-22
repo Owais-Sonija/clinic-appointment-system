@@ -5,12 +5,12 @@ const generateTokens = (res: Response, userId: string | object) => {
     const accessTokenSecret = process.env.JWT_SECRET || 'secret';
     const refreshTokenSecret = process.env.JWT_REFRESH_SECRET || accessTokenSecret;
 
-    // Generate Access Token (short-lived, e.g., 15 minutes)
+    // Generate Access Token (short-lived: 15 minutes)
     const accessToken = jwt.sign({ userId }, accessTokenSecret, {
         expiresIn: '15m'
     });
 
-    // Generate Refresh Token (long-lived, e.g., 7 days)
+    // Generate Refresh Token (long-lived: 7 days)
     const refreshToken = jwt.sign({ userId }, refreshTokenSecret, {
         expiresIn: '7d'
     });
@@ -18,7 +18,7 @@ const generateTokens = (res: Response, userId: string | object) => {
     // Set Access Token in Cookie
     res.cookie('jwt', accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV !== 'development',
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000 // 15 mins
     });
@@ -26,7 +26,7 @@ const generateTokens = (res: Response, userId: string | object) => {
     // Set Refresh Token in Cookie
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV !== 'development',
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });

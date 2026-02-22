@@ -14,16 +14,19 @@ class AppointmentService {
             throw new ApiError(404, 'Doctor not found or inactive');
         }
 
-        // Check for double bookings (Overlap logic could be expanded)
-        const existingApt = await Appointment.findOne({
+        // Advanced Overlap Logic: Ensure no appointment exists for this doctor that overlaps with the requested time range
+        const overlappingApt = await Appointment.findOne({
             doctorId,
             date,
-            startTime,
-            status: { $ne: 'Cancelled' }
+            status: { $ne: 'Cancelled' },
+            isDeleted: false,
+            $or: [
+                { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
+            ]
         });
 
-        if (existingApt) {
-            throw new ApiError(400, 'This time slot is already booked for the selected doctor');
+        if (overlappingApt) {
+            throw new ApiError(400, `This time slot (${startTime}-${endTime}) overlaps with an existing appointment for the selected doctor.`);
         }
 
         // Basic validation passed; create appointment
@@ -74,13 +77,16 @@ class AppointmentService {
         const overlap = await Appointment.findOne({
             doctorId: apt.doctorId,
             date: newDate,
-            startTime: newStartTime,
             status: { $ne: 'Cancelled' },
-            _id: { $ne: id } // Exclude the current appointment from check
+            isDeleted: false,
+            _id: { $ne: id },
+            $or: [
+                { startTime: { $lt: newEndTime }, endTime: { $gt: newStartTime } }
+            ]
         });
 
         if (overlap) {
-            throw new ApiError(400, 'The new time slot is already booked');
+            throw new ApiError(400, `The new time slot (${newStartTime}-${newEndTime}) overlaps with an existing appointment.`);
         }
 
         apt.date = newDate;

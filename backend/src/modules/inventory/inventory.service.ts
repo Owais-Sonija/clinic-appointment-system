@@ -56,6 +56,27 @@ class InventoryService {
             $expr: { $lte: ['$stockQuantity', '$reorderLevel'] }
         });
     }
+
+    async deductStock(itemId: string, quantity: number): Promise<IInventory> {
+        return await this.adjustStock(itemId, -quantity);
+    }
+
+    async dispenseMedication(prescriptions: { medicineName: string, quantity?: number }[]): Promise<void> {
+        for (const item of prescriptions) {
+            const inventoryItem = await Inventory.findOne({
+                itemName: new RegExp(`^${item.medicineName}$`, 'i'),
+                isDeleted: false
+            });
+
+            if (inventoryItem) {
+                const qtyToDeduct = item.quantity || 1;
+                await this.deductStock(inventoryItem._id.toString(), qtyToDeduct);
+                console.log(`[INFO] Dispensed ${qtyToDeduct} of ${inventoryItem.itemName} automatically.`);
+            } else {
+                console.warn(`[WARN] Medicine ${item.medicineName} not found in inventory. Stock not deducted.`);
+            }
+        }
+    }
 }
 
 export default new InventoryService();

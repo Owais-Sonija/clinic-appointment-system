@@ -9,6 +9,9 @@ export interface IPayment extends Document {
     status: 'Success' | 'Pending' | 'Failed';
     paymentDate: Date;
     notes?: string;
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
+    isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -31,7 +34,10 @@ const paymentSchema: Schema<IPayment> = new mongoose.Schema({
         default: 'Success'
     },
     paymentDate: { type: Date, default: Date.now },
-    notes: { type: String }
+    notes: { type: String },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true
 });

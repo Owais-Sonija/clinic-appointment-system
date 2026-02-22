@@ -10,7 +10,7 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'patient'
+        phone: ''
     });
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -38,7 +38,7 @@ const Register = () => {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: formData.role
+                phone: formData.phone
             });
             toast.success('Registration successful! Welcome to MediClinic.');
             navigate('/patient');
@@ -58,8 +58,8 @@ const Register = () => {
                             <FaStethoscope className="text-primary text-3xl group-hover:scale-110 transition-transform" />
                             <span className="font-bold text-2xl text-dark tracking-tight">Medi<span className="text-primary">Clinic</span></span>
                         </Link>
-                        <h2 className="text-3xl font-extrabold text-gray-900 mt-2">Create an account</h2>
-                        <p className="text-sm text-gray-600">
+                        <h2 className="text-center text-3xl font-extrabold text-gray-900 font-display">Join as a New Patient</h2>
+                        <p className="mt-2 text-center text-sm text-gray-600">
                             Already have an account?{' '}
                             <Link to="/login" className="font-medium text-primary hover:text-blue-700">
                                 Log in here
@@ -70,28 +70,39 @@ const Register = () => {
                     <div className="mt-8">
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
-                                <label className="label-text">Full Name</label>
-                                <input name="name" type="text" required value={formData.name} onChange={handleChange} className="input-field shadow-sm" placeholder="John Doe" />
+                                <label className="label-text text-gray-700 font-semibold mb-1.5 block">Full Name</label>
+                                <input name="name" type="text" required value={formData.name} onChange={handleChange} className="input-field shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="John Doe" />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="label-text text-gray-700 font-semibold mb-1.5 block">Email Address</label>
+                                    <input name="email" type="email" required value={formData.email} onChange={handleChange} className="input-field shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="john@example.com" />
+                                </div>
+                                <div>
+                                    <label className="label-text text-gray-700 font-semibold mb-1.5 block">Phone Number</label>
+                                    <input name="phone" type="tel" required value={formData.phone} onChange={handleChange} className="input-field shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="+1 234 567 890" />
+                                </div>
                             </div>
 
                             <div>
-                                <label className="label-text">Email Address</label>
-                                <input name="email" type="email" required value={formData.email} onChange={handleChange} className="input-field shadow-sm" placeholder="john@example.com" />
+                                <label className="label-text text-gray-700 font-semibold mb-1.5 block">Password</label>
+                                <input name="password" type="parent" required value={formData.password} onChange={handleChange} className="input-field shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="Minimum 6 characters" minLength={6} />
                             </div>
 
                             <div>
-                                <label className="label-text">Password</label>
-                                <input name="password" type="password" required value={formData.password} onChange={handleChange} className="input-field shadow-sm" placeholder="Minimum 6 characters" minLength={6} />
+                                <label className="label-text text-gray-700 font-semibold mb-1.5 block">Confirm Password</label>
+                                <input name="confirmPassword" type="password" required value={formData.confirmPassword} onChange={handleChange} className="input-field shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="Repeat your password" />
                             </div>
 
-                            <div>
-                                <label className="label-text">Confirm Password</label>
-                                <input name="confirmPassword" type="password" required value={formData.confirmPassword} onChange={handleChange} className="input-field shadow-sm" placeholder="Repeat your password" minLength={6} />
-                            </div>
-
-                            <div className="pt-2">
-                                <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3 text-lg">
-                                    {isSubmitting ? 'Creating account...' : 'Create Account'}
+                            <div className="pt-4">
+                                <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-4 text-lg font-bold shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
+                                    {isSubmitting ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            Creating Account...
+                                        </>
+                                    ) : 'Create Patient Account'}
                                 </button>
                             </div>
                         </form>

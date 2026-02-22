@@ -4,12 +4,13 @@ export interface IMedicalRecord extends Document {
     patientId: mongoose.Types.ObjectId | any;
     doctorId: mongoose.Types.ObjectId | any;
     appointmentId?: mongoose.Types.ObjectId | any;
+    visitDate?: Date;
     vitals: {
         bloodPressure?: string;
         heartRate?: number;
         temperature?: number;
-        weight?: number; // kg
-        height?: number; // cm
+        weight?: number;
+        height?: number;
     };
     symptoms: string[];
     diagnosis: string;
@@ -17,10 +18,19 @@ export interface IMedicalRecord extends Document {
         medicineName: string;
         dosage: string;
         frequency: string;
-        duration: string; // e.g. "7 days"
+        duration: string;
     }[];
+    labTests: {
+        testName: string;
+        result?: string;
+        normalRange?: string;
+        status: 'Pending' | 'Completed';
+    }[];
+    followUpDate?: Date;
     notes?: string;
-    attachments: string[]; // file URLs
+    attachments: string[];
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -30,6 +40,7 @@ const medicalRecordSchema: Schema<IMedicalRecord> = new mongoose.Schema({
     patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
     appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' },
+    visitDate: { type: Date },
 
     vitals: {
         bloodPressure: String,
@@ -47,8 +58,17 @@ const medicalRecordSchema: Schema<IMedicalRecord> = new mongoose.Schema({
         frequency: { type: String, required: true },
         duration: { type: String, required: true }
     }],
+    labTests: [{
+        testName: { type: String, required: true },
+        result: { type: String },
+        normalRange: { type: String },
+        status: { type: String, enum: ['Pending', 'Completed'], default: 'Pending' }
+    }],
+    followUpDate: { type: Date },
     notes: String,
     attachments: [{ type: String }],
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

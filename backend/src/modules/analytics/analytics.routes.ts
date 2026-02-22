@@ -9,5 +9,6 @@ router.use(protect);
 router.use(roleAuth('admin')); // Only admins can view overarching clinic analytics
 
 router.get('/dashboard', analyticsController.getDashboard);
+router.get('/stats', analyticsController.getDashboardStats);
 
 export default router;

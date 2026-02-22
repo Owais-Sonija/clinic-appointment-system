@@ -14,17 +14,21 @@ export interface IDoctor extends Document {
     qualification: string;
     consultationFee: number;
     bio?: string;
+    licenseNumber?: string;
+    isActive: boolean;
     availability: IAvailability[];
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
 
 const availabilitySchema = new mongoose.Schema({
-    day: { type: String, required: true }, // e.g. "Monday"
-    startTime: { type: String, required: true }, // e.g. "09:00"
-    endTime: { type: String, required: true }, // e.g. "17:00"
-    slotDuration: { type: Number, default: 30 } // duration in minutes
+    day: { type: String, required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    slotDuration: { type: Number, default: 30 }
 });
 
 const doctorSchema: Schema<IDoctor> = new mongoose.Schema({
@@ -34,11 +38,15 @@ const doctorSchema: Schema<IDoctor> = new mongoose.Schema({
         required: true
     },
     specialization: { type: String, required: true },
-    experience: { type: Number, required: true }, // years
+    experience: { type: Number, required: true },
     qualification: { type: String, required: true },
     consultationFee: { type: Number, required: true },
     bio: { type: String },
+    licenseNumber: { type: String },
+    isActive: { type: Boolean, default: true },
     availability: [availabilitySchema],
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

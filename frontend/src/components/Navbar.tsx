@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { FaStethoscope, FaUserCircle } from 'react-icons/fa';
 
-const Navbar = () => {
+const Navbar = ({ isDashboard = false }: { isDashboard?: boolean }) => {
     const { user, logout } = useContext(AuthContext)!;
 
     const getDashboardLink = () => {
@@ -12,6 +12,8 @@ const Navbar = () => {
         if (user.role === 'doctor') return '/doctor';
         return '/patient';
     };
+
+    if (isDashboard) return null; // Fully hide main navbar in dashboard if using Sidebar
 
     return (
         <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">

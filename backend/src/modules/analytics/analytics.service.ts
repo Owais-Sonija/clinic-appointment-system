@@ -1,10 +1,11 @@
 import Appointment from '../appointments/appointment.model';
 import Invoice from '../billing/invoice.model';
 import Inventory from '../inventory/inventory.model';
+import User from '../users/user.model';
+import Doctor from '../doctors/doctor.model';
 
 class AnalyticsService {
     async getDashboardMetrics() {
-        // Run all queries concurrently for performance
         const [
             revenueMetrics,
             appointmentStats,
@@ -25,6 +26,59 @@ class AnalyticsService {
             },
             recentActivity: recentInvoices
         };
+    }
+
+    async getQuickStats(): Promise<any> {
+        const [patients, doctors, appointments, revenue] = await Promise.all([
+            User.countDocuments({ role: 'patient', isDeleted: false }),
+            Doctor.countDocuments({ isDeleted: false }),
+            Appointment.countDocuments({ isDeleted: false }),
+            Invoice.aggregate([
+                { $match: { isDeleted: false, status: 'Paid' } },
+                { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+            ])
+        ]);
+
+        return {
+            totalPatients: patients,
+            activeDoctors: doctors,
+            totalAppointments: appointments,
+            totalRevenue: revenue[0]?.total || 0
+        };
+    }
+
+    async getMonthlyRevenue(): Promise<any> {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        const revenue = await Invoice.aggregate([
+            {
+                $match: {
+                    isDeleted: false,
+                    status: 'Paid',
+                    createdAt: { $gte: oneYearAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        month: { $month: '$createdAt' },
+                        year: { $year: '$createdAt' }
+                    },
+                    total: { $sum: '$totalAmount' }
+                }
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } }
+        ]);
+        return revenue;
+    }
+
+    async getAppointmentStats(): Promise<any> {
+        const stats = await Appointment.aggregate([
+            { $match: { isDeleted: false } },
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        return stats;
     }
 
     private async getRevenueMetrics() {
@@ -49,46 +103,6 @@ class AnalyticsService {
 
         const result = await Invoice.aggregate(pipeline);
         return result.length > 0 ? result[0] : { totalRevenue: 0, totalInvoices: 0 };
-    }
-
-    private async getAppointmentStats() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const pipeline = [
-            {
-                $match: {
-                    date: { $gte: today },
-                    isDeleted: false
-                }
-            },
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 }
-                }
-            }
-        ];
-
-        const results = await Appointment.aggregate(pipeline);
-
-        // Format to easily consumable object mapped via string indexes
-        const formatted: Record<string, number> = {
-            Scheduled: 0,
-            Completed: 0,
-            Cancelled: 0,
-            'No Show': 0,
-            Total: 0
-        };
-
-        results.forEach((stat: any) => {
-            if (stat._id) {
-                formatted[stat._id] = stat.count;
-                formatted.Total += stat.count;
-            }
-        });
-
-        return formatted;
     }
 
     private async getLowStockCount() {

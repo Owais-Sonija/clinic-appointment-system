@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FaUserMd, FaCalendarCheck, FaHeartbeat, FaArrowRight } from 'react-icons/fa';
 import axiosInstance from '../api/axiosInstance';
+import { AuthContext } from '../context/AuthContext';
+import BookingAuthModal from '../components/BookingAuthModal';
 
 const Home = () => {
     const [doctors, setDoctors] = useState<any[]>([]);
     const [services, setServices] = useState<any[]>([]);
+    const { user } = useContext(AuthContext)!;
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchPreviews = async () => {
@@ -40,9 +44,18 @@ const Home = () => {
                             Book appointments with specialized doctors in minutes. Experience world-class medical consultation with our certified professionals.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <Link to="/register" className="btn-primary flex items-center justify-center gap-2 group text-lg py-4">
-                                Book an Appointment <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            {user ? (
+                                <Link to="/patient" state={{ activeTab: 'book' }} className="btn-primary flex items-center justify-center gap-2 group text-lg py-4">
+                                    Book an Appointment <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            ) : (
+                                <button
+                                    onClick={() => setIsAuthModalOpen(true)}
+                                    className="btn-primary flex items-center justify-center gap-2 group text-lg py-4"
+                                >
+                                    Book an Appointment <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            )}
                             <Link to="/services" className="btn-outline flex items-center justify-center border-gray-500 text-white hover:bg-gray-800 text-lg py-4">
                                 Explore Services
                             </Link>
@@ -163,6 +176,10 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+            <BookingAuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+            />
         </div>
     );
 };

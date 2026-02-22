@@ -3,12 +3,14 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from '../context/AuthContext';
 import { FaGraduationCap, FaBriefcase, FaMoneyBillWave, FaClock, FaCalendarPlus, FaArrowLeft } from 'react-icons/fa';
+import BookingAuthModal from '../components/BookingAuthModal';
 
 const DoctorDetails = () => {
     const { id } = useParams();
     const { user } = useContext(AuthContext)!;
     const [doctor, setDoctor] = useState<any | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchDoctor = async () => {
@@ -56,9 +58,12 @@ const DoctorDetails = () => {
                                 <FaCalendarPlus /> Book Session
                             </Link>
                         ) : (
-                            <Link to="/login" className="w-full btn-outline flex items-center justify-center gap-2 py-3 mt-auto">
+                            <button
+                                onClick={() => setIsAuthModalOpen(true)}
+                                className="w-full btn-outline flex items-center justify-center gap-2 py-3 mt-auto"
+                            >
                                 Login to Book
-                            </Link>
+                            </button>
                         )}
                     </div>
 
@@ -128,6 +133,12 @@ const DoctorDetails = () => {
                     </div>
                 </div>
             </div>
+
+            <BookingAuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                doctorName={doctor.userId?.name}
+            />
         </div>
     );
 };

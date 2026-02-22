@@ -3,6 +3,7 @@ import Payment, { IPayment } from './payment.model';
 import Appointment from '../appointments/appointment.model';
 import Doctor from '../doctors/doctor.model';
 import Service from '../clinic/service.model';
+import Counter from '../../utils/counter.model';
 import ApiError from '../../utils/ApiError';
 
 class BillingService {
@@ -44,7 +45,19 @@ class BillingService {
             subtotal += service.price;
         }
 
-        const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+        const taxRate = 0.05; // Standard 5% VAT (configurable in ClinicConfig later)
+        const tax = subtotal * taxRate;
+        const discount = 0; // Logic for discount could be added here
+        const totalAmount = subtotal + tax - discount;
+
+        // Auto-increment Sequential Invoice Numbering
+        const counter: any = await Counter.findOneAndUpdate(
+            { modelName: 'Invoice', field: 'invoiceNumber' },
+            { $inc: { sequence: 1 } },
+            { new: true, upsert: true }
+        );
+
+        const invoiceNumber = `INV-${new Date().getFullYear()}-${counter.sequence.toString().padStart(4, '0')}`;
         const dueDate = new Date();
         dueDate.setDate(dueDate.getDate() + 7); // Default 7 days to pay
 
@@ -54,9 +67,9 @@ class BillingService {
             invoiceNumber,
             items,
             subtotal,
-            tax: 0, // Configurable later
-            discount: 0,
-            totalAmount: subtotal,
+            tax,
+            discount,
+            totalAmount,
             dueDate
         });
 

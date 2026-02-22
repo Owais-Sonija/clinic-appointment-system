@@ -42,6 +42,19 @@ class MedicalRecordService {
         if (!record) throw new ApiError(404, 'Medical record not found');
         return record;
     }
+
+    async getPrescriptionData(recordId: string): Promise<any> {
+        const record = await this.getRecordById(recordId);
+        // This data will be used by the frontend or an email service to generate the PDF
+        return {
+            patient: record.patientId,
+            doctor: record.doctorId,
+            date: record.visitDate || record.createdAt,
+            diagnosis: record.diagnosis,
+            prescriptions: record.prescriptions,
+            vitals: record.vitals
+        };
+    }
 }
 
 export default new MedicalRecordService();

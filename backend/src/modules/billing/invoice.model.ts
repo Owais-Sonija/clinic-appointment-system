@@ -20,6 +20,8 @@ export interface IInvoice extends Document {
     status: 'Draft' | 'Unpaid' | 'Partial' | 'Paid' | 'Cancelled';
     dueDate: Date;
     notes?: string;
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -54,6 +56,8 @@ const invoiceSchema: Schema<IInvoice> = new mongoose.Schema({
     },
     dueDate: { type: Date, required: true },
     notes: { type: String },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

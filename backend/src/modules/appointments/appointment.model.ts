@@ -5,12 +5,18 @@ export interface IAppointment extends Document {
     doctorId: mongoose.Types.ObjectId | any;
     serviceId?: mongoose.Types.ObjectId | any;
     date: Date;
-    startTime: string; // e.g., "14:00"
-    endTime: string;   // e.g., "14:30"
+    startTime: string;
+    endTime: string;
+    duration?: number; // minutes
+    reason?: string;
     status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
     symptoms?: string;
     notes?: string;
+    cancellationReason?: string;
+    rescheduledFrom?: mongoose.Types.ObjectId;
     paymentStatus: 'Pending' | 'Paid' | 'Partial' | 'Refunded';
+    createdBy?: mongoose.Types.ObjectId;
+    updatedBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -19,11 +25,13 @@ export interface IAppointment extends Document {
 const appointmentSchema: Schema<IAppointment> = new mongoose.Schema({
     patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
-    serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service' },
+    serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
 
     date: { type: Date, required: true },
-    startTime: { type: String, required: true }, // "10:00"
-    endTime: { type: String, required: true },   // "10:30"
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    duration: { type: Number },
+    reason: { type: String },
 
     status: {
         type: String,
@@ -32,16 +40,23 @@ const appointmentSchema: Schema<IAppointment> = new mongoose.Schema({
     },
     symptoms: { type: String },
     notes: { type: String },
+    cancellationReason: { type: String },
+    rescheduledFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' },
 
     paymentStatus: {
         type: String,
         enum: ['Pending', 'Paid', 'Partial', 'Refunded'],
         default: 'Pending'
     },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true
 });
+
+// Compound Index to prevent double booking at the DB level
+appointmentSchema.index({ doctorId: 1, date: 1, startTime: 1 }, { unique: true });
 
 // Composite index to prevent double bookings
 appointmentSchema.index({ doctorId: 1, date: 1, startTime: 1 }, { unique: true });

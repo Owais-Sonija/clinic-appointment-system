@@ -3,8 +3,10 @@ import { useLocation } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaCalendarAlt, FaTimesCircle, FaCheckCircle, FaSpinner, FaUserMd } from 'react-icons/fa';
+import { FaCalendarAlt, FaTimesCircle, FaCheckCircle, FaSpinner, FaUserMd, FaArrowRight, FaCalendarPlus } from 'react-icons/fa';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
 
 const PatientDashboard = () => {
     const { user } = useContext(AuthContext)!;
@@ -12,6 +14,7 @@ const PatientDashboard = () => {
     const preselectDoctor = location.state?.preselectDoctor || '';
 
     const [activeTab, setActiveTab] = useState('upcoming');
+    const [bookingStep, setBookingStep] = useState(1);
     const queryClient = useQueryClient();
 
     const fetchAppointments = async () => (await axiosInstance.get('/api/appointments')).data?.data || [];
@@ -46,6 +49,7 @@ const PatientDashboard = () => {
         onSuccess: () => {
             toast.success('Appointment booked successfully!');
             setBookingData({ doctorId: '', serviceId: '', appointmentDate: '', appointmentTime: '', notes: '' });
+            setBookingStep(1);
             setActiveTab('upcoming');
             queryClient.invalidateQueries({ queryKey: ['appointments'] });
         },
@@ -102,7 +106,7 @@ const PatientDashboard = () => {
         }
     };
 
-    if (loading) return <div className="flex justify-center items-center py-32"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div></div>;
+    if (loading) return <LoadingSpinner />;
 
     return (
         <div className="py-8 bg-gray-50 min-h-screen">
@@ -126,12 +130,12 @@ const PatientDashboard = () => {
                             </div>
                             <ul className="p-2 space-y-1">
                                 <li>
-                                    <button onClick={() => setActiveTab('upcoming')} className={`w-full text-left px-4 py-3 rounded-xl font-medium transition ${activeTab === 'upcoming' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'}`}>
+                                    <button onClick={() => setActiveTab('upcoming')} className={`w-full text-left px-4 py-3 rounded-xl font-medium transition tour-active-tab ${activeTab === 'upcoming' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'}`}>
                                         Active Appointments
                                     </button>
                                 </li>
                                 <li>
-                                    <button onClick={() => setActiveTab('past')} className={`w-full text-left px-4 py-3 rounded-xl font-medium transition ${activeTab === 'past' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'}`}>
+                                    <button onClick={() => setActiveTab('past')} className={`w-full text-left px-4 py-3 rounded-xl font-medium transition tour-past-tab ${activeTab === 'past' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'}`}>
                                         History & Records
                                     </button>
                                 </li>
@@ -150,12 +154,12 @@ const PatientDashboard = () => {
                             <div>
                                 <h2 className="text-2xl font-bold text-dark mb-6 flex items-center gap-2 border-b pb-4"><FaCalendarAlt className="text-primary" /> Upcoming Appointments</h2>
                                 {upcomingAppts.length === 0 ? (
-                                    <div className="text-center py-12">
-                                        <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-3xl">📅</div>
-                                        <h3 className="text-xl font-bold text-gray-800 mb-2">No upcoming visits</h3>
-                                        <p className="text-gray-500 mb-6">You don't have any appointments scheduled right now.</p>
-                                        <button onClick={() => setActiveTab('book')} className="btn-primary">Book an Appointment</button>
-                                    </div>
+                                    <EmptyState
+                                        title="No upcoming visits"
+                                        description="You don't have any appointments scheduled right now. Ready for a checkup?"
+                                        icon="📅"
+                                        action={{ label: 'Book New Visit', onClick: () => setActiveTab('book') }}
+                                    />
                                 ) : (
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                         {upcomingAppts.map((appt: any) => (
@@ -227,47 +231,118 @@ const PatientDashboard = () => {
                         {activeTab === 'book' && (
                             <div className="animate-fade-in">
                                 <h2 className="text-2xl font-bold text-dark mb-6 border-b pb-4">Book New Appointment</h2>
-                                <form onSubmit={handleBookingSubmit} className="max-w-xl bg-gray-50/50 p-6 rounded-2xl border border-gray-100 placeholder-shown:opacity-100">
-                                    <div className="space-y-5">
-                                        <div>
-                                            <label className="label-text">Select Speciality / Service</label>
-                                            <select name="serviceId" required value={bookingData.serviceId} onChange={handleBookingChange} className="input-field bg-white">
-                                                <option value="">-- Choose a Service --</option>
-                                                {services.map((s: any) => <option key={s._id} value={s._id}>{s.name} (${s.price})</option>)}
-                                            </select>
-                                        </div>
 
-                                        <div>
-                                            <label className="label-text">Select Doctor</label>
-                                            <select name="doctorId" required value={bookingData.doctorId} onChange={handleBookingChange} className="input-field bg-white">
-                                                <option value="">-- Choose a Doctor --</option>
-                                                {doctors.map((d: any) => <option key={d._id} value={d._id}>Dr. {d.userId?.name} - {d.specialization}</option>)}
-                                            </select>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="label-text">Preferred Date</label>
-                                                <input type="date" name="appointmentDate" required min={new Date().toISOString().split('T')[0]} value={bookingData.appointmentDate} onChange={handleBookingChange} className="input-field bg-white" />
+                                {/* Step Indicator */}
+                                <div className="flex items-center justify-between mb-10 max-w-xl mx-auto px-4">
+                                    {[1, 2, 3].map((s) => (
+                                        <div key={s} className="flex flex-col items-center flex-1 relative">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all border-2 z-10 ${bookingStep >= s ? 'bg-primary border-primary text-white shadow-lg shadow-blue-500/30' : 'bg-white border-gray-200 text-gray-400'}`}>
+                                                {s}
                                             </div>
-                                            <div>
-                                                <label className="label-text">Preferred Time</label>
-                                                <input type="time" name="appointmentTime" required value={bookingData.appointmentTime} onChange={handleBookingChange} className="input-field bg-white" />
+                                            <span className={`text-xs mt-2 font-semibold uppercase tracking-wider ${bookingStep >= s ? 'text-primary' : 'text-gray-400'}`}>
+                                                {s === 1 ? 'Doctor' : s === 2 ? 'Schedule' : 'Review'}
+                                            </span>
+                                            {s < 3 && <div className={`absolute left-1/2 top-5 w-full h-0.5 -z-0 ${bookingStep > s ? 'bg-primary' : 'bg-gray-100'}`}></div>}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="max-w-xl mx-auto">
+                                    {bookingStep === 1 && (
+                                        <div className="space-y-6 animate-fade-in-up">
+                                            <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 mb-8">
+                                                <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2"><FaUserMd /> Select Provider & Service</h3>
+                                                <div className="space-y-5">
+                                                    <div>
+                                                        <label className="label-text text-blue-900/70">Medical Service</label>
+                                                        <select name="serviceId" required value={bookingData.serviceId} onChange={handleBookingChange} className="input-field bg-white border-blue-100 focus:border-primary">
+                                                            <option value="">-- Choose a Service --</option>
+                                                            {services.map((s: any) => <option key={s._id} value={s._id}>{s.name} (${s.price})</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="label-text text-blue-900/70">Healthcare Professional</label>
+                                                        <select name="doctorId" required value={bookingData.doctorId} onChange={handleBookingChange} className="input-field bg-white border-blue-100 focus:border-primary">
+                                                            <option value="">-- Choose a Doctor --</option>
+                                                            {doctors.map((d: any) => <option key={d._id} value={d._id}>Dr. {d.userId?.name} - {d.specialization}</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="label-text">Additional Notes (Optional)</label>
-                                            <textarea name="notes" rows={3} value={bookingData.notes} onChange={handleBookingChange} className="input-field bg-white resize-none" placeholder="Briefly describe your symptoms..."></textarea>
-                                        </div>
-
-                                        <div className="pt-4">
-                                            <button type="submit" disabled={bookMutation.isPending} className="btn-primary w-full py-3 hover:shadow-lg transition">
-                                                {bookMutation.isPending ? 'Processing...' : 'Confirm Appointment'}
+                                            <button
+                                                disabled={!bookingData.doctorId || !bookingData.serviceId}
+                                                onClick={() => setBookingStep(2)}
+                                                className="btn-primary w-full py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed group"
+                                            >
+                                                Next: Choose Schedule <FaArrowRight className="inline ml-2 group-hover:translate-x-1 transition-transform" />
                                             </button>
                                         </div>
-                                    </div>
-                                </form>
+                                    )}
+
+                                    {bookingStep === 2 && (
+                                        <div className="space-y-6 animate-fade-in-up">
+                                            <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 mb-8">
+                                                <h3 className="text-lg font-bold text-emerald-900 mb-4 flex items-center gap-2">📅 Select Date & Time</h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="label-text text-emerald-900/70">Preferred Date</label>
+                                                        <input type="date" name="appointmentDate" required min={new Date().toISOString().split('T')[0]} value={bookingData.appointmentDate} onChange={handleBookingChange} className="input-field bg-white border-emerald-100 focus:border-emerald-500" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="label-text text-emerald-900/70">Preferred Time</label>
+                                                        <input type="time" name="appointmentTime" required value={bookingData.appointmentTime} onChange={handleBookingChange} className="input-field bg-white border-emerald-100 focus:border-emerald-500" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <button onClick={() => setBookingStep(1)} className="flex-1 py-4 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition">Back</button>
+                                                <button
+                                                    disabled={!bookingData.appointmentDate || !bookingData.appointmentTime}
+                                                    onClick={() => setBookingStep(3)}
+                                                    className="flex-[2] btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    Next: Review Details
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {bookingStep === 3 && (
+                                        <div className="space-y-6 animate-fade-in-up">
+                                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-8">
+                                                <h3 className="text-lg font-bold text-gray-900 mb-6 border-b pb-4">Final Confirmation</h3>
+                                                <div className="space-y-4 mb-6">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-500">Professional:</span>
+                                                        <span className="font-bold">Dr. {doctors.find((d: any) => d._id === bookingData.doctorId)?.userId?.name}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-500">Service:</span>
+                                                        <span className="font-bold">{services.find((s: any) => s._id === bookingData.serviceId)?.name}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-500">Schedule:</span>
+                                                        <span className="font-bold text-primary">{new Date(bookingData.appointmentDate).toLocaleDateString()} at {bookingData.appointmentTime}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="label-text">Additional Notes (Symptoms, Allergies, etc.)</label>
+                                                    <textarea name="notes" rows={3} value={bookingData.notes} onChange={handleBookingChange} className="input-field bg-white resize-none" placeholder="Provide any context for the doctor..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <button onClick={() => setBookingStep(2)} className="flex-1 py-4 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition">Back</button>
+                                                <button
+                                                    onClick={handleBookingSubmit}
+                                                    disabled={bookMutation.isPending}
+                                                    className="flex-[2] btn-primary py-4 text-lg shadow-xl shadow-blue-500/20"
+                                                >
+                                                    {bookMutation.isPending ? 'Confirming Appointment...' : 'Confirm & Book Visit'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
 
