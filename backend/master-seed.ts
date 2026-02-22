@@ -154,7 +154,8 @@ const importData = async () => {
                 category: faker.helpers.arrayElement(['Medicine', 'Equipment', 'Consumable']),
                 stockQuantity: faker.number.int({ min: 10, max: 200 }),
                 unit: 'boxes',
-                unitPrice: parseFloat(faker.commerce.price({ min: 5, max: 100 })),
+                purchasePrice: parseFloat(faker.commerce.price({ min: 5, max: 80 })),
+                sellingPrice: parseFloat(faker.commerce.price({ min: 85, max: 150 })),
                 supplier: faker.company.name(),
                 reorderLevel: 20
             });

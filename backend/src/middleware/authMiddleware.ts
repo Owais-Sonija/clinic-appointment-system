@@ -36,3 +36,12 @@ export const protect = asyncHandler(async (req: Request | any, res: Response, ne
         throw new ApiError(401, 'Not authorized, token failed');
     }
 });
+
+export const restrictTo = (...roles: string[]) => {
+    return (req: Request | any, res: Response, next: NextFunction) => {
+        if (!roles.includes(req.user.role)) {
+            throw new ApiError(403, 'You do not have permission to perform this action');
+        }
+        next();
+    };
+};

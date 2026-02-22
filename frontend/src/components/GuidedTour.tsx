@@ -21,7 +21,7 @@ const GuidedTour: React.FC = () => {
             setRun(false);
             try {
                 // Update backend
-                await axiosInstance.patch('/api/users/profile', { hasCompletedTour: true });
+                await axiosInstance.patch('/api/auth/profile', { hasCompletedTour: true });
                 // Update context
                 if (user) {
                     setUser({ ...user, hasCompletedTour: true });
@@ -31,6 +31,30 @@ const GuidedTour: React.FC = () => {
             }
         }
     };
+
+    const doctorSteps: Step[] = [
+        {
+            target: 'body',
+            content: 'Welcome Dr. ' + (user?.name || '') + '! This is your specialized clinical workspace.',
+            placement: 'center',
+        },
+        {
+            target: '.tour-doctor-welcome',
+            content: 'This area greets you and provides a quick context of your current session.',
+        },
+        {
+            target: '.tour-doctor-stats',
+            content: 'Monitor your daily performance, including today\'s appointments and completion rates.',
+        },
+        {
+            target: '.tour-doctor-charts',
+            content: 'Visualize appointment trends and patient flow over time here.',
+        },
+        {
+            target: '.tour-doctor-actions',
+            content: 'Quickly access common clinical tasks like creating EMRs or updating your availability.',
+        }
+    ];
 
     const patientSteps: Step[] = [
         {
@@ -72,7 +96,13 @@ const GuidedTour: React.FC = () => {
         }
     ];
 
-    const steps = user?.role === 'admin' ? adminSteps : patientSteps;
+    const getSteps = () => {
+        if (user?.role === 'admin') return adminSteps;
+        if (user?.role === 'doctor') return doctorSteps;
+        return patientSteps;
+    };
+
+    const steps = getSteps();
 
     if (!user || user.hasCompletedTour) return null;
 

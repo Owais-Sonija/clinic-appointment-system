@@ -1,9 +1,25 @@
 import MedicalRecord, { IMedicalRecord } from './medicalRecord.model';
+import Appointment from '../appointments/appointment.model';
 import ApiError from '../../utils/ApiError';
 
 class MedicalRecordService {
+    async listRecords(filter: any = {}): Promise<IMedicalRecord[]> {
+        return await MedicalRecord.find({ ...filter, isDeleted: false })
+            .populate('patientId', 'name email phone')
+            .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name specialization' } })
+            .populate('appointmentId', 'date startTime status')
+            .sort({ createdAt: -1 });
+    }
+
     async createRecord(data: Partial<IMedicalRecord>): Promise<IMedicalRecord> {
-        return await MedicalRecord.create(data);
+        const record = await MedicalRecord.create(data);
+
+        // If appointmentId exists, mark it as completed
+        if (data.appointmentId) {
+            await Appointment.findByIdAndUpdate(data.appointmentId, { status: 'Completed' });
+        }
+
+        return record;
     }
 
     async getPatientHistory(patientId: string): Promise<IMedicalRecord[]> {

@@ -25,14 +25,22 @@ const Sidebar: React.FC = () => {
 
     const menuItems = [
         { name: 'Dashboard', path: `/${user?.role}`, icon: <BsGrid1X2Fill />, roles: ['admin', 'doctor', 'patient', 'receptionist', 'nurse'] },
-        { name: 'Patients', path: '/patients', icon: <BsPeopleFill />, roles: ['admin', 'doctor', 'receptionist', 'nurse'] },
-        { name: 'Appointments', path: '/appointments', icon: <BsCalendarCheckFill />, roles: ['admin', 'doctor', 'patient', 'receptionist', 'nurse'] },
-        { name: 'EMR / Records', path: '/medical-records', icon: <BsFileEarmarkMedicalFill />, roles: ['admin', 'doctor', 'patient', 'receptionist', 'nurse'] },
+        { name: 'Doctors', path: '/admin/doctors', icon: <BsPeopleFill />, roles: ['admin'] },
+        { name: 'Patients', path: user?.role === 'admin' ? '/admin/patients' : '/patients', icon: <BsPeopleFill />, roles: ['admin', 'doctor', 'receptionist', 'nurse'] },
+        { name: 'Appointments', path: user?.role === 'doctor' ? '/doctor/appointments' : user?.role === 'admin' ? '/admin/appointments' : '/appointments', icon: <BsCalendarCheckFill />, roles: ['admin', 'doctor', 'receptionist', 'nurse'] },
+        { name: 'Book Appointment', path: '/patient/book-appointment', icon: <BsCalendarCheckFill />, roles: ['patient'] },
+        { name: 'My Appointments', path: '/patient/appointments', icon: <BsCalendarCheckFill />, roles: ['patient'] },
+        { name: 'Schedules', path: '/admin/schedules', icon: <BsCalendarCheckFill />, roles: ['admin'] },
+        { name: 'Schedule', path: '/doctor/schedule', icon: <BsCalendarCheckFill />, roles: ['doctor'] },
+        { name: 'EMR / Records', path: user?.role === 'doctor' ? '/doctor/medical-records' : user?.role === 'admin' ? '/admin/medical-records' : user?.role === 'patient' ? '/patient/medical-records' : '/medical-records', icon: <BsFileEarmarkMedicalFill />, roles: ['admin', 'doctor', 'patient', 'receptionist', 'nurse'] },
+        { name: 'Prescriptions', path: '/patient/prescriptions', icon: <BsFileEarmarkMedicalFill />, roles: ['patient'] },
         { name: 'Inventory', path: '/inventory', icon: <BsInboxesFill />, roles: ['admin', 'doctor', 'receptionist', 'nurse'] },
-        { name: 'Billing', path: '/billing', icon: <BsCreditCardFill />, roles: ['admin', 'receptionist'] },
+        { name: 'Billing', path: user?.role === 'admin' ? '/admin/billing' : user?.role === 'patient' ? '/patient/billing' : '/billing', icon: <BsCreditCardFill />, roles: ['admin', 'receptionist', 'patient'] },
+        { name: 'Notifications', path: user?.role === 'admin' ? '/admin/notifications' : '/patient/notifications', icon: <BsInboxesFill />, roles: ['admin', 'patient'] },
         { name: 'Staff', path: '/staff', icon: <BsPeopleFill />, roles: ['admin'] },
-        { name: 'Reports', path: '/reports', icon: <BsBarChartFill />, roles: ['admin'] },
-        { name: 'Settings', path: '/settings', icon: <BsGearFill />, roles: ['admin'] },
+        { name: 'Audit Logs', path: '/admin/audit-logs', icon: <BsGrid1X2Fill />, roles: ['admin'] },
+        { name: 'My Profile', path: user?.role === 'doctor' ? '/doctor/profile' : '/patient/profile', icon: <BsGearFill />, roles: ['doctor', 'patient'] },
+        { name: 'Settings', path: '/admin/settings', icon: <BsGearFill />, roles: ['admin'] },
     ];
 
     const filteredItems = menuItems.filter(item => item.roles.includes(user?.role || ''));

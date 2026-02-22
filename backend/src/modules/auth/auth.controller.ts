@@ -73,6 +73,27 @@ class AuthController {
             throw new ApiError(401, 'Refresh token expired or invalid');
         }
     });
+
+    updateProfile = asyncHandler(async (req: Request | any, res: Response) => {
+        const { name, phone, bio, hasCompletedTour, gender, dateOfBirth, address } = req.body;
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        // Update basic user fields
+        if (name) user.name = name;
+        if (phone) user.phone = phone;
+        if (gender) user.gender = gender;
+        if (dateOfBirth) user.dateOfBirth = dateOfBirth;
+        if (address) user.address = address;
+        if (hasCompletedTour !== undefined) user.hasCompletedTour = hasCompletedTour;
+
+        await user.save();
+
+        res.status(200).json(new ApiResponse(200, user, "Profile updated successfully"));
+    });
 }
 
 export default new AuthController();

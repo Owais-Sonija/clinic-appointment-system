@@ -1,9 +1,24 @@
 import { Request, Response } from 'express';
 import emrService from './medicalRecord.service';
+import Doctor from '../doctors/doctor.model';
 import ApiResponse from '../../utils/ApiResponse';
 import asyncHandler from '../../utils/asyncHandler';
 
 class MedicalRecordController {
+    getAll = asyncHandler(async (req: Request | any, res: Response) => {
+        let filter: any = {};
+
+        if (req.user.role === 'doctor') {
+            const doctor = await Doctor.findOne({ userId: req.user._id });
+            if (doctor) {
+                filter.doctorId = doctor._id;
+            }
+        }
+
+        const records = await emrService.listRecords(filter);
+        res.status(200).json(new ApiResponse(200, records, "Medical records retrieved"));
+    });
+
     create = asyncHandler(async (req: Request, res: Response) => {
         const record = await emrService.createRecord(req.body);
         res.status(201).json(new ApiResponse(201, record, "Medical record created successfully"));

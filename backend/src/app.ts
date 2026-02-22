@@ -95,6 +95,8 @@ setupSwagger(app);
 // Routes
 import authRoutes from './modules/auth/auth.routes';
 import doctorRoutes from './modules/doctors/doctor.routes';
+import doctorDashboardRoutes from './modules/doctor/doctor.routes';
+import patientRoutes from './modules/patient/patient.routes';
 import appointmentRoutes from './modules/appointments/appointment.routes';
 import clinicRoutes from './modules/clinic/clinic.routes';
 import staffRoutes from './modules/staff/staff.routes';
@@ -107,10 +109,12 @@ import contactRoutes from './modules/contact/contact.routes';
 
 import userRoutes from './modules/users/user.routes';
 import auditLogRoutes from './modules/auditLogs/auditLog.routes';
-
+import adminRoutes from './modules/admin/admin.routes';
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/doctors', doctorRoutes);
+app.use('/api/doctor', doctorDashboardRoutes);
+app.use('/api/patient', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/clinic', clinicRoutes);
 app.use('/api/staff', staffRoutes);
@@ -121,6 +125,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Default health route
 app.get('/api/health', (req: Request, res: Response) => {
