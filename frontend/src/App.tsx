@@ -44,6 +44,12 @@ import DoctorEMRForm from './pages/dashboard/doctor/DoctorEMRForm';
 import PatientHistory from './pages/dashboard/doctor/PatientHistory';
 import DashboardLayout from './components/DashboardLayout';
 
+import NurseOverview from './pages/dashboard/nurse/NurseOverview';
+import NurseAppointments from './pages/dashboard/nurse/NurseAppointments';
+import RecordVitals from './pages/dashboard/nurse/RecordVitals';
+import NursingNotes from './pages/dashboard/nurse/NursingNotes';
+import NursePatientHistory from './pages/dashboard/nurse/NursePatientHistory';
+
 import {
   Patients,
   Appointments,
@@ -101,6 +107,13 @@ function App() {
                 <Route path="/doctor/medical-records" element={<ProtectedRoute allowedRoles={['doctor']}><DashboardLayout><DoctorMedicalRecords /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/doctor/schedule" element={<ProtectedRoute allowedRoles={['doctor']}><DashboardLayout><DoctorSchedule /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['doctor']}><DashboardLayout><DoctorProfile /></DashboardLayout></ProtectedRoute>} />
+
+                {/* Nurse Routes */}
+                <Route path="/nurse" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NurseOverview /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/nurse/appointments" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NurseAppointments /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/nurse/appointments/:id/vitals" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><RecordVitals /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/nurse/appointments/:id/notes" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NursingNotes /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/nurse/patients/:id/history" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NursePatientHistory /></DashboardLayout></ProtectedRoute>} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />
