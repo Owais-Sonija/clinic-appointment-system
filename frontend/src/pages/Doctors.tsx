@@ -8,6 +8,7 @@ const Doctors = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSpec, setFilterSpec] = useState('');
+    const [sortBy, setSortBy] = useState('experience'); // Default sort
 
     useEffect(() => {
         const fetchDoctors = async () => {
@@ -29,6 +30,11 @@ const Doctors = () => {
         const matchesSearch = doc.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialization.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilter = filterSpec === '' || doc.specialization === filterSpec;
         return matchesSearch && matchesFilter;
+    }).sort((a, b) => {
+        if (sortBy === 'experience') return b.experience - a.experience;
+        if (sortBy === 'fee_low') return a.consultationFee - b.consultationFee;
+        if (sortBy === 'fee_high') return b.consultationFee - a.consultationFee;
+        return 0;
     });
 
     return (
@@ -60,6 +66,15 @@ const Doctors = () => {
                             {specializations.map((spec, i) => (
                                 <option key={i} value={spec}>{spec}</option>
                             ))}
+                        </select>
+                        <select
+                            className="input-field shadow-sm w-full sm:w-48 appearance-none bg-white font-medium text-gray-600"
+                            value={sortBy}
+                            onChange={(e: any) => setSortBy(e.target.value)}
+                        >
+                            <option value="experience">Most Experienced</option>
+                            <option value="fee_low">Fee: Low to High</option>
+                            <option value="fee_high">Fee: High to Low</option>
                         </select>
                     </div>
                 </div>

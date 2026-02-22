@@ -66,14 +66,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again after 15 minutes'
-});
-app.use('/api', limiter);
-
 // CORS config
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'],
@@ -81,6 +73,14 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // Increased for development
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use('/api', limiter);
 app.use(morgan('dev'));
 
 // Winston request logging
