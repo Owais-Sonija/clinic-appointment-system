@@ -3,7 +3,7 @@ import DispenseLog from './dispenseLog.model';
 import PharmacyInvoice from './pharmacyInvoice.model';
 import Prescription from '../doctor/prescription.model';
 import ApiError from '../../utils/ApiError';
-import AuditLog from '../admin/auditLog.model';
+import AuditLog from '../auditLogs/auditLog.model';
 
 class PharmacistService {
     // Internal Audit helper inside Service for Pharmacy Context

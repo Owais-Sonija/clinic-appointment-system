@@ -1,9 +1,9 @@
 import Appointment from '../appointments/appointment.model';
-import User from '../auth/user.model';
+import User from '../users/user.model';
 import Invoice from '../billing/invoice.model';
 import QueueStatus from './queueStatus.model';
 import ApiError from '../../utils/apiError';
-import AuditLog from '../admin/auditLog.model';
+import AuditLog from '../auditLogs/auditLog.model';
 
 class ReceptionistService {
     // Audit internal helper

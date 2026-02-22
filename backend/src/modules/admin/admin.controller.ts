@@ -19,6 +19,17 @@ class AdminController {
         res.status(201).json(new ApiResponse(201, doctor, "Doctor created successfully"));
     });
 
+    getUsers = asyncHandler(async (req: Request, res: Response) => {
+        const users = await adminService.getUsers(req.query);
+        res.status(200).json(new ApiResponse(200, users, "All users retrieved successfully"));
+    });
+
+    updateUserRole = asyncHandler(async (req: Request | any, res: Response) => {
+        const { role } = req.body;
+        const user = await adminService.updateUserRole(req.params.id, role, req.user._id, req.ip || '');
+        res.status(200).json(new ApiResponse(200, user, "User role updated successfully"));
+    });
+
     updateDoctor = asyncHandler(async (req: Request | any, res: Response) => {
         const doctor = await adminService.updateDoctor(req.params.id, req.body, req.user._id, req.ip || '');
         res.status(200).json(new ApiResponse(200, doctor, "Doctor updated successfully"));
@@ -42,7 +53,7 @@ class AdminController {
 
     updatePatientStatus = asyncHandler(async (req: Request | any, res: Response) => {
         const { isActive } = req.body;
-        const patient = await adminService.updatePatientStatus(req.params.id, isActive, req.user._id, req.ip || '');
+        const patient = await adminService.updatePatientStatus(req.params.id as string, isActive, req.user._id, req.ip || '');
         res.status(200).json(new ApiResponse(200, patient, "Patient status updated successfully"));
     });
 
@@ -63,7 +74,7 @@ class AdminController {
 
     updateAppointmentStatus = asyncHandler(async (req: Request | any, res: Response) => {
         const { status, reason } = req.body;
-        const appointment = await adminService.updateAppointmentStatus(req.params.id, status, reason, req.user._id, req.ip || '');
+        const appointment = await adminService.updateAppointmentStatus(req.params.id as string, status, reason, req.user._id, req.ip || '');
         res.status(200).json(new ApiResponse(200, appointment, "Appointment status overridden successfully"));
     });
 

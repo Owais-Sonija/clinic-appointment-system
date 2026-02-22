@@ -2,7 +2,7 @@ import User from '../users/user.model';
 import Doctor from '../doctors/doctor.model';
 import Appointment from '../appointments/appointment.model';
 import MedicalRecord from '../medicalRecords/medicalRecord.model';
-import AuditLog from './auditLog.model';
+import AuditLog from '../auditLogs/auditLog.model';
 import SystemSettings from './systemSettings.model';
 import ApiError from '../../utils/ApiError';
 
@@ -156,6 +156,28 @@ class AdminService {
 
         await this.logAction(adminId, 'admin', 'UPDATE_DOCTOR_STATUS', 'Doctor', doctor._id, oldStatus, { isActive, isDeleted }, ipAddress);
         return doctor;
+    }
+
+    async getUsers(query: any) {
+        let filter: any = {};
+        if (query.role) filter.role = query.role;
+        if (query.search) {
+            filter.$or = [
+                { name: { $regex: query.search, $options: 'i' } },
+                { email: { $regex: query.search, $options: 'i' } }
+            ];
+        }
+        return await User.find(filter).select('-password').sort({ createdAt: -1 });
+    }
+
+    async updateUserRole(userId: string, targetRole: string, adminId: string, ipAddress: string) {
+        const user = await User.findById(userId);
+        if (!user) throw new ApiError(404, 'User not found');
+        const oldRole = user.role;
+        user.role = targetRole as 'patient' | 'doctor' | 'admin' | 'receptionist' | 'nurse' | 'pharmacist';
+        await user.save();
+        await this.logAction(adminId, 'admin', 'UPDATE_USER_ROLE', 'User', user._id, { role: oldRole }, { role: targetRole }, ipAddress);
+        return user;
     }
 
     async getPatients(query: any) {

@@ -21,6 +21,10 @@ router.get('/patients', adminController.getPatients);
 router.get('/patients/:id', adminController.getPatientById);
 router.patch('/patients/:id/status', adminController.updatePatientStatus);
 
+// Global User Management
+router.get('/users', adminController.getUsers);
+router.put('/users/:id/role', adminController.updateUserRole);
+
 // Medical Records Oversight
 router.get('/medical-records', adminController.getMedicalRecords);
 router.get('/medical-records/:id', adminController.getMedicalRecordById);

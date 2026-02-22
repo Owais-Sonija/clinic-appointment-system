@@ -63,6 +63,12 @@ import PharmacistDispense from './pages/dashboard/pharmacist/PharmacistDispense'
 import PharmacistInventory from './pages/dashboard/pharmacist/PharmacistInventory';
 import PharmacistBilling from './pages/dashboard/pharmacist/PharmacistBilling';
 
+// Admin Pages
+import AdminOverview from './pages/dashboard/admin/AdminOverview';
+import AdminUsers from './pages/dashboard/admin/AdminUsers';
+import AdminAuditLogs from './pages/dashboard/admin/AdminAuditLogs';
+import AdminSettings from './pages/dashboard/admin/AdminSettings';
+
 import {
   Patients,
   Appointments,
@@ -144,11 +150,11 @@ function App() {
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />
-                <Route path="/admin/doctors" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminDoctors /></DashboardLayout></ProtectedRoute>} />
-                <Route path="/admin/patients" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminPatients /></DashboardLayout></ProtectedRoute>} />
-                <Route path="/admin/appointments" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAppointments /></DashboardLayout></ProtectedRoute>} />
-                <Route path="/admin/medical-records" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminMedicalRecords /></DashboardLayout></ProtectedRoute>} />
-                <Route path="/admin/schedules" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminSchedules /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/admin/doctors" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/admin/patients" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAuditLogs /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminSettings /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/admin/billing" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminBilling /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminNotifications /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAuditLogs /></DashboardLayout></ProtectedRoute>} />
