@@ -50,6 +50,12 @@ import RecordVitals from './pages/dashboard/nurse/RecordVitals';
 import NursingNotes from './pages/dashboard/nurse/NursingNotes';
 import NursePatientHistory from './pages/dashboard/nurse/NursePatientHistory';
 
+import ReceptionistOverview from './pages/dashboard/receptionist/ReceptionistOverview';
+import ReceptionistPatients from './pages/dashboard/receptionist/ReceptionistPatients';
+import ReceptionistAppointments from './pages/dashboard/receptionist/ReceptionistAppointments';
+import ReceptionistBilling from './pages/dashboard/receptionist/ReceptionistBilling';
+import ReceptionistReports from './pages/dashboard/receptionist/ReceptionistReports';
+
 import {
   Patients,
   Appointments,
@@ -114,6 +120,13 @@ function App() {
                 <Route path="/nurse/appointments/:id/vitals" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><RecordVitals /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/nurse/appointments/:id/notes" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NursingNotes /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/nurse/patients/:id/history" element={<ProtectedRoute allowedRoles={['nurse']}><DashboardLayout><NursePatientHistory /></DashboardLayout></ProtectedRoute>} />
+
+                {/* Receptionist Routes */}
+                <Route path="/receptionist" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistOverview /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/receptionist/patients" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistPatients /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/receptionist/appointments" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistAppointments /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/receptionist/billing" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistBilling /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/receptionist/reports" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistReports /></DashboardLayout></ProtectedRoute>} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />

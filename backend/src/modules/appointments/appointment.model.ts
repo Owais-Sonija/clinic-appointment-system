@@ -9,7 +9,7 @@ export interface IAppointment extends Document {
     endTime: string;
     duration?: number; // minutes
     reason?: string;
-    status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
+    status: 'Scheduled' | 'CheckedIn' | 'vitals_recorded' | 'ready_for_doctor' | 'Completed' | 'Cancelled' | 'No Show';
     symptoms?: string;
     notes?: string;
     cancellationReason?: string;
@@ -35,7 +35,7 @@ const appointmentSchema: Schema<IAppointment> = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['Scheduled', 'Completed', 'Cancelled', 'No Show'],
+        enum: ['Scheduled', 'CheckedIn', 'vitals_recorded', 'ready_for_doctor', 'Completed', 'Cancelled', 'No Show'],
         default: 'Scheduled'
     },
     symptoms: { type: String },

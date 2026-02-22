@@ -10,7 +10,8 @@ import {
     BsCreditCardFill,
     BsGearFill,
     BsBoxArrowRight,
-    BsBarChartFill
+    BsBarChartFill,
+    BsGraphUp
 } from 'react-icons/bs';
 
 const Sidebar: React.FC = () => {
@@ -25,9 +26,12 @@ const Sidebar: React.FC = () => {
 
     const menuItems = [
         { name: 'Dashboard', path: `/${user?.role}`, icon: <BsGrid1X2Fill />, roles: ['admin', 'doctor', 'patient', 'receptionist', 'nurse'] },
+        { name: 'Patients', path: user?.role === 'admin' ? '/admin/patients' : user?.role === 'receptionist' ? '/receptionist/patients' : '/patients', icon: <BsPeopleFill />, roles: ['admin', 'doctor', 'receptionist', 'nurse'] },
         { name: 'Queue', path: '/nurse/appointments', icon: <BsPeopleFill />, roles: ['nurse'] },
-        { name: 'Schedules', path: '/admin/schedules', icon: <BsCalendarCheckFill />, roles: ['admin'] },
+        { name: 'Daily Schedule', path: '/receptionist/appointments', icon: <BsCalendarCheckFill />, roles: ['receptionist'] },
         { name: 'My Schedule', path: '/nurse/schedule', icon: <BsCalendarCheckFill />, roles: ['nurse'] },
+        { name: 'Reports', path: '/receptionist/reports', icon: <BsGraphUp />, roles: ['receptionist'] },
+        { name: 'Billing', path: user?.role === 'admin' ? '/admin/billing' : user?.role === 'patient' ? '/patient/billing' : user?.role === 'receptionist' ? '/receptionist/billing' : '/billing', icon: <BsCreditCardFill />, roles: ['admin', 'receptionist', 'patient'] },
         { name: 'Notifications', path: user?.role === 'admin' ? '/admin/notifications' : user?.role === 'nurse' ? '/nurse/notifications' : '/patient/notifications', icon: <BsInboxesFill />, roles: ['admin', 'patient', 'nurse'] },
         { name: 'Staff', path: '/staff', icon: <BsPeopleFill />, roles: ['admin'] },
         { name: 'Audit Logs', path: '/admin/audit-logs', icon: <BsGrid1X2Fill />, roles: ['admin'] },
