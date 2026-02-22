@@ -25,7 +25,7 @@ const Footer = () => {
                     <div>
                         <h3 className="text-lg font-semibold mb-6 text-white tracking-wide border-b border-gray-700 pb-2 inline-block">Quick Links</h3>
                         <ul className="space-y-3">
-                            <li><Link to="/about" className="text-gray-400 hover:text-primary transition flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> About Us</Link></li>
+                            <li><Link to="/" className="text-gray-400 hover:text-primary transition flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Home</Link></li>
                             <li><Link to="/services" className="text-gray-400 hover:text-primary transition flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Our Services</Link></li>
                             <li><Link to="/doctors" className="text-gray-400 hover:text-primary transition flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Find a Doctor</Link></li>
                             <li><Link to="/contact" className="text-gray-400 hover:text-primary transition flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Contact Us</Link></li>
