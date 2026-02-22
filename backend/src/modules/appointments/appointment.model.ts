@@ -58,7 +58,5 @@ const appointmentSchema: Schema<IAppointment> = new mongoose.Schema({
 // Compound Index to prevent double booking at the DB level
 appointmentSchema.index({ doctorId: 1, date: 1, startTime: 1 }, { unique: true });
 
-// Composite index to prevent double bookings
-appointmentSchema.index({ doctorId: 1, date: 1, startTime: 1 }, { unique: true });
 
 export default mongoose.model<IAppointment>('Appointment', appointmentSchema);
