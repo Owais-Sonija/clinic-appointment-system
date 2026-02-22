@@ -56,6 +56,13 @@ import ReceptionistAppointments from './pages/dashboard/receptionist/Receptionis
 import ReceptionistBilling from './pages/dashboard/receptionist/ReceptionistBilling';
 import ReceptionistReports from './pages/dashboard/receptionist/ReceptionistReports';
 
+// Pharmacist Pages
+import PharmacistOverview from './pages/dashboard/pharmacist/PharmacistOverview';
+import PharmacistPrescriptions from './pages/dashboard/pharmacist/PharmacistPrescriptions';
+import PharmacistDispense from './pages/dashboard/pharmacist/PharmacistDispense';
+import PharmacistInventory from './pages/dashboard/pharmacist/PharmacistInventory';
+import PharmacistBilling from './pages/dashboard/pharmacist/PharmacistBilling';
+
 import {
   Patients,
   Appointments,
@@ -127,6 +134,13 @@ function App() {
                 <Route path="/receptionist/appointments" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistAppointments /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/receptionist/billing" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistBilling /></DashboardLayout></ProtectedRoute>} />
                 <Route path="/receptionist/reports" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistReports /></DashboardLayout></ProtectedRoute>} />
+
+                {/* Pharmacist Dashboard Routes */}
+                <Route path="/pharmacist" element={<ProtectedRoute allowedRoles={['pharmacist']}><DashboardLayout><PharmacistOverview /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/pharmacist/prescriptions" element={<ProtectedRoute allowedRoles={['pharmacist']}><DashboardLayout><PharmacistPrescriptions /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/pharmacist/prescriptions/:id" element={<ProtectedRoute allowedRoles={['pharmacist']}><DashboardLayout><PharmacistDispense /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/pharmacist/inventory" element={<ProtectedRoute allowedRoles={['pharmacist']}><DashboardLayout><PharmacistInventory /></DashboardLayout></ProtectedRoute>} />
+                <Route path="/pharmacist/billing" element={<ProtectedRoute allowedRoles={['pharmacist']}><DashboardLayout><PharmacistBilling /></DashboardLayout></ProtectedRoute>} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />

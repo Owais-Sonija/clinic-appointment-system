@@ -112,6 +112,7 @@ import auditLogRoutes from './modules/auditLogs/auditLog.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import nurseRoutes from './modules/nurse/nurse.routes';
 import receptionistRoutes from './modules/receptionist/receptionist.routes';
+import pharmacistRoutes from './modules/pharmacist/pharmacist.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -120,6 +121,7 @@ app.use('/api/doctor', doctorDashboardRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/nurse', nurseRoutes);
 app.use('/api/receptionist', receptionistRoutes);
+app.use('/api/pharmacist', pharmacistRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/clinic', clinicRoutes);
 app.use('/api/staff', staffRoutes);

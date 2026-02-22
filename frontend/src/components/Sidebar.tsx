@@ -11,7 +11,9 @@ import {
     BsGearFill,
     BsBoxArrowRight,
     BsBarChartFill,
-    BsGraphUp
+    BsGraphUp,
+    BsCapsule,
+    BsCollectionFill
 } from 'react-icons/bs';
 
 const Sidebar: React.FC = () => {
