@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
-import { IUser } from '../../../backend/src/modules/users/user.model'; // We could redefine it here or use a shared frontend type. Let's define a clean frontend type.
 
 export interface FrontendUser {
     _id: string;
@@ -33,15 +33,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const checkAuth = async () => {
+            // Only attempt to restore session if user previously logged in
+            const hasSession = localStorage.getItem('clinic_session');
+            if (!hasSession) {
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+
             try {
-                // If we have a session cookie, /profile will return the user
-                const res = await axiosInstance.get('/api/auth/profile');
+                const baseURL = axiosInstance.defaults.baseURL || 'http://localhost:5000';
+                const res = await axios.get(`${baseURL}/api/auth/profile`, { withCredentials: true });
                 if (res.data.success) {
                     setUser(res.data.data);
                 }
-            } catch (error: any) {
-                // If 401, the interceptor might have already tried a refresh
-                // If it still fails, user is definitely logged out
+            } catch {
+                // Session expired or invalid — clear the flag
+                localStorage.removeItem('clinic_session');
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -54,6 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (email: string, password: string): Promise<any> => {
         const res = await axiosInstance.post('/api/auth/login', { email, password });
         if (res.data.success) {
+            localStorage.setItem('clinic_session', 'true');
             setUser(res.data.data);
         }
         return res.data;
@@ -62,6 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const register = async (userData: any): Promise<any> => {
         const res = await axiosInstance.post('/api/auth/register', userData);
         if (res.data.success) {
+            localStorage.setItem('clinic_session', 'true');
             setUser(res.data.data);
         }
         return res.data;
@@ -69,6 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const logout = async (): Promise<void> => {
         await axiosInstance.post('/api/auth/logout');
+        localStorage.removeItem('clinic_session');
         setUser(null);
     };
 
